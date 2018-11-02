@@ -47,6 +47,62 @@
         children: buildingsData
     }
  }
+ function getSingleBuildingCategoriesLevelsInstances(buildingGuid) {   
+
+    let buildingsData = [];
+
+    const categories = getDistinctCategories(instances);
+
+
+    categories.forEach((itemCategory)=> {
+    let numberOfInstancesPerCategory =0;
+        const buildingLevels = levels.filter((item)=> {
+           
+            return item.Building.guid === buildingGuid;
+        } )
+        .map((itemLevel) => {
+
+            const levelInstances = instances.filter((itemInstance)=> {          
+               
+                if (itemInstance.hasOwnProperty('Floor') && itemLevel.hasOwnProperty('guid')) {
+                    if (itemInstance.Floor!== null) {
+                        return ( itemInstance.Floor.guid === itemLevel.guid &&
+                            itemCategory === itemInstance.GlobalCategory);                        
+                    }                    
+                }
+              
+                return false;
+                
+            }).map((itemInstance2)=> {
+                return {
+                    name: itemInstance2.GlobalName+ "("+itemInstance2.guid+")",
+                    guid: itemInstance2.guid,
+                   
+                }
+            });
+            numberOfInstancesPerCategory+=levelInstances.length
+            return {
+                name: itemLevel.Name + "("+itemLevel.guid+")" + " -  Number of items: " + levelInstances.length,
+                guid: itemLevel.guid,               
+                children: levelInstances
+            }
+        });
+
+
+        buildingsData.push ({
+            name: itemCategory + " -  Number of items: " + numberOfInstancesPerCategory,
+            guid: itemCategory,          
+            children: buildingLevels
+        })
+
+    })
+
+    return {
+        name: "Bimeye",
+        children: buildingsData
+    }
+    
+ }
  function getBuildingsRoomsInstances() {
 
     let buildingsData = [];
@@ -109,21 +165,26 @@
         children: buildingsData
     }
  }
- function getBuildingsPartition()  {   
+ function getBuildingsPartition(buildingGuid)  {   
 
     let buildingsData = [];
 
-    buildings.forEach((itemBuilding)=> {
+    const categories = getDistinctCategories(instances);
+
+
+    categories.forEach((itemCategory)=> {
   
-        const buildingLevels = levels.filter((itemLevel) => {           
-            return itemLevel.Building.guid === itemBuilding.guid
-        }).map((itemLevel2) => {
+        const buildingLevels = levels.filter((item)=> {
+            return item.Building.guid === buildingGuid;
+        } )
+        .map((itemLevel) => {
 
             const levelInstances = instances.filter((itemInstance)=> {
                
-                if (itemInstance.hasOwnProperty('Floor') && itemLevel2.hasOwnProperty('guid')) {
+                if (itemInstance.hasOwnProperty('Floor') && itemLevel.hasOwnProperty('guid')) {
                     if (itemInstance.Floor!== null) {
-                        return ( itemInstance.Floor.guid === itemLevel2.guid);                        
+                        return ( itemInstance.Floor.guid === itemLevel.guid &&
+                            itemCategory ===itemInstance.GlobalCategory);                        
                     }                    
                 }
               
@@ -138,26 +199,40 @@
             });
 
             return {
-                name: itemLevel2.Name,
-                guid: itemLevel2.guid,
+                name: itemLevel.Name,
+                guid: itemLevel.guid,
                 size: 1,
-                children: levelInstances
+               // children: levelInstances
             }
         });
 
 
         buildingsData.push ({
-            name: itemBuilding.Name,
-            guid: itemBuilding.guid,
+            name: itemCategory,
+            guid: itemCategory,
             size: 1,
             children: buildingLevels
         })
 
     })
 
-    console.log("buildings", buildingsData)
+    console.log("categories", getDistinctCategories(instances))
     return {
         name: "Bimeye",
         children: buildingsData
     }
+    
+ }
+ function getDistinctCategories(array) {
+
+    var flags = [], output = [], l = array.length, i;
+    for( i=0; i<l; i++) {
+        if( flags[array[i].GlobalCategory]) continue;
+        flags[array[i].GlobalCategory] = true;
+        output.push(array[i].GlobalCategory);
+    }
+
+    return output;
+
+
  }
