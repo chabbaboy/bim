@@ -55,7 +55,9 @@
 
 
     categories.forEach((itemCategory)=> {
+
     let numberOfInstancesPerCategory =0;
+    
         const buildingLevels = levels.filter((item)=> {
            
             return item.Building.guid === buildingGuid;
@@ -96,6 +98,79 @@
         })
 
     })
+
+    return {
+        name: "Bimeye",
+        children: buildingsData
+    }
+    
+ }
+
+ function getBuildingsCategoriesLevelsInstances() {   
+
+    let result = [];    
+
+    const categories = getDistinctCategories(instances);
+
+    const buildingsData = buildings.map((itemBuilding)=> {
+        numberOfInstancesPerBuilding =0
+       
+        const categoryData = categories.map((itemCategory)=> { 
+            numberOfInstancesPerCategory =0
+            
+            const buildingLevels = levels.filter((item)=> {
+               
+                return item.Building.guid === itemBuilding.guid;
+            } )
+            .map((itemLevel) => {
+               
+               
+                numberOfInstancesPerLevel =0
+              const levelInstances = instances.filter((itemInstance)=> {          
+                
+                if (itemInstance.hasOwnProperty('Floor') && itemLevel.hasOwnProperty('guid')) {
+                    if (itemInstance.Floor!== null) {
+                        return ( itemInstance.Floor.guid === itemLevel.guid &&
+                            itemCategory === itemInstance.GlobalCategory);                        
+                    }                    
+                }
+            
+                return false;
+                
+            }).map((itemInstance2)=> {
+                numberOfInstancesPerLevel+=1
+                return {
+                    name: itemInstance2.GlobalName+ "("+itemInstance2.guid+")",
+                    guid: itemInstance2.guid,
+                
+                }
+            });
+                
+                numberOfInstancesPerCategory+=levelInstances.length
+                return {
+                    name: itemLevel.Name + "("+itemLevel.guid+")" + " -  Number of items: " + numberOfInstancesPerLevel,
+                    guid: itemLevel.guid,
+                    children: levelInstances               
+                 
+                }
+            });
+            numberOfInstancesPerBuilding+=numberOfInstancesPerCategory
+
+            return  {
+                guid: itemCategory,
+                name: itemCategory + " -  Number of items: " + numberOfInstancesPerCategory,
+                children: buildingLevels,             
+            } 
+        });
+       
+        return {
+            guid: itemBuilding.guid,
+            name: itemBuilding.Name+ "("+itemBuilding.guid+")" + " -  Number of items: " + numberOfInstancesPerBuilding,
+            children: categoryData
+        } 
+
+
+    });
 
     return {
         name: "Bimeye",
@@ -236,3 +311,50 @@
 
 
  }
+
+ /*
+        categories.forEach((itemCategory)=> {
+
+            let numberOfInstancesPerCategory =0;
+        
+            const buildingLevels = levels.filter((item)=> {
+            
+                return item.Building.guid === itemBuilding.guid;
+            } )
+            .map((itemLevel) => {
+
+                const levelInstances = instances.filter((itemInstance)=> {          
+                
+                    if (itemInstance.hasOwnProperty('Floor') && itemLevel.hasOwnProperty('guid')) {
+                        if (itemInstance.Floor!== null) {
+                            return ( itemInstance.Floor.guid === itemLevel.guid &&
+                                itemCategory === itemInstance.GlobalCategory);                        
+                        }                    
+                    }
+                
+                    return false;
+                    
+                }).map((itemInstance2)=> {
+                    return {
+                        name: itemInstance2.GlobalName+ "("+itemInstance2.guid+")",
+                        guid: itemInstance2.guid,
+                    
+                    }
+                });
+                numberOfInstancesPerCategory+=levelInstances.length
+                return {
+                    name: itemLevel.Name + "("+itemLevel.guid+")" + " -  Number of items: " + levelInstances.length,
+                    guid: itemLevel.guid,               
+                    children: levelInstances
+                }
+            });
+
+
+            buildingsData.push ({
+                name: itemCategory + " -  Number of items: " + numberOfInstancesPerCategory,
+                guid: itemCategory,          
+                children: buildingLevels
+            })
+
+        })
+*/

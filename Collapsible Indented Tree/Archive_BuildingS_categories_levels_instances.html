@@ -35,7 +35,7 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="./buildings.js"></script> 
 <script src="./levels.js"></script> 
-<script src="./instances_single_building.js"></script> 
+<script src="./instances.js"></script> 
 <script src="./helper.js"></script>
 <script>
 	
@@ -57,7 +57,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var bimData = getSingleBuildingCategoriesLevelsInstances("701d3b5b-976f-4866-b759-5e61d2e6ac78");
+  var bimData = getBuildingsCategoriesLevelsInstances("701d3b5b-976f-4866-b759-5e61d2e6ac78");
   root = d3.hierarchy(bimData);
   root.x0 = 0;
   root.y0 = 0;
